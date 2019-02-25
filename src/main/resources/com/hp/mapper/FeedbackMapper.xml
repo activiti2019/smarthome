@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hp.mapper.FeedbackMapper" >
+  <resultMap id="BaseResultMap" type="com.hp.pojo.Feedback" >
+    <id column="f_id" property="fId" jdbcType="INTEGER" />
+    <result column="u_id" property="uId" jdbcType="INTEGER" />
+    <result column="cn_id" property="cnId" jdbcType="INTEGER" />
+    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="message" property="message" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    f_id, u_id, cn_id, createtime, message
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from feedback
+    where f_id = #{fId,jdbcType=INTEGER}
+  </select>
+  <!--  -->
+  <select id="queryInfoByuIdcnId" parameterType="com.hp.pojo.Feedback" resultMap="BaseResultMap">
+  	select * from feedback where u_id = #{uId} and cn_id = #{cnId} and fixed =0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from feedback
+    where f_id = #{fId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.hp.pojo.Feedback" >
+    insert into feedback (f_id, u_id, cn_id, 
+      createtime, message)
+    values (#{fId,jdbcType=INTEGER}, #{uId,jdbcType=INTEGER}, #{cnId,jdbcType=INTEGER}, 
+      #{createtime,jdbcType=TIMESTAMP}, #{message,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.hp.pojo.Feedback" >
+    insert into feedback
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="fId != null" >
+        f_id,
+      </if>
+      <if test="uId != null" >
+        u_id,
+      </if>
+      <if test="cnId != null" >
+        cn_id,
+      </if>
+      <if test="createtime != null" >
+        createtime,
+      </if>
+      <if test="message != null" >
+        message,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="fId != null" >
+        #{fId,jdbcType=INTEGER},
+      </if>
+      <if test="uId != null" >
+        #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="cnId != null" >
+        #{cnId,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="message != null" >
+        #{message,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hp.pojo.Feedback" >
+    update feedback
+    <set >
+      <if test="uId != null" >
+        u_id = #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="cnId != null" >
+        cn_id = #{cnId,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="message != null" >
+        message = #{message,jdbcType=VARCHAR},
+      </if>
+      <if test="1==fixed or 0==fixed" >
+        fixed = #{fixed,jdbcType=INTEGER},
+      </if>
+    </set>
+    where f_id = #{fId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hp.pojo.Feedback" >
+    update feedback
+    set u_id = #{uId,jdbcType=INTEGER},
+      cn_id = #{cnId,jdbcType=INTEGER},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      message = #{message,jdbcType=VARCHAR}
+    where f_id = #{fId,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByIdSelective" parameterType="Integer">
+  	update feedback set fixed=1 where f_id=#{fId}
+  </update>
+  
+<!--   //查询所有控件报修信息 -->
+    <select id="selectCon" parameterType="QueryFeedback" resultMap="BaseResultMap">
+    	 select * from feedback
+    <where>
+			<if test="uId!=null and ''!=uId">
+				<foreach collection="uId" separator="or" item="item">
+					u_id=#{item}
+				</foreach>
+			</if>
+			<if test="cnId==null or ''==cnId">
+				and cn_id!=0
+			</if>
+			<if test="cnId!=null and ''!=cnId">
+				and cn_id=#{cnId}
+			</if>
+			<if test="cmId!=null">
+				and u_id in(select u_id from user where cm_id=#{cmId,jdbcType=INTEGER})
+			</if>
+			<if test="starttime!=null and ''!=starttime  and endtime!=null and ''!=endtime">
+				and createtime between #{starttime} and DATE_ADD(#{endtime},INTERVAL 1 DAY) and createtime &lt; DATE_ADD(#{endtime},INTERVAL 1 DAY)
+			</if>
+			<if test="fixed==1 or fixed==0">
+				and fixed=#{fixed}
+			</if>
+		</where>
+		limit #{startRow},#{size}
+    </select>
+    
+<!--   //查询所有控件保修信息条数 -->
+    <select id="countConByQueryFeedback" parameterType="QueryFeedback" resultType="int">
+    	 select count(1) from feedback
+    <where>
+			<if test="uId!=null and ''!=uId">
+				<foreach collection="uId" separator="or" item="item">
+					u_id=#{item}
+				</foreach>
+			</if>
+			<if test="cnId==null or ''==cnId">
+				and cn_id!=0
+			</if>
+			<if test="cnId!=null and ''!=cnId">
+				and cn_id=#{cnId}
+			</if>
+			<if test="cmId!=null">
+				and u_id in(select u_id from user where cm_id=#{cmId,jdbcType=INTEGER})
+			</if>
+			<if test="starttime!=null and ''!=starttime  and endtime!=null and ''!=endtime">
+				and createtime between #{starttime} and DATE_ADD(#{endtime},INTERVAL 1 DAY) and createtime &lt; DATE_ADD(#{endtime},INTERVAL 1 DAY)
+			</if>
+			<if test="fixed==1 or fixed==0">
+				and fixed=#{fixed}
+			</if>
+		</where>
+    </select>
+    
+<!--   //查询所有用户反馈信息 -->
+    <select id="selectFeedback" parameterType="QueryFeedback" resultMap="BaseResultMap">
+    	 select * from feedback
+    <where>
+			<if test="uId!=null and ''!=uId">
+				<foreach collection="uId" separator="or" item="item">
+					u_id=#{item}
+				</foreach>
+			</if>
+			<if test="cnId==null or ''==cnId">
+				and cn_id=0
+			</if>
+			<if test="cmId!=null">
+				and u_id in(select u_id from user where cm_id=#{cmId,jdbcType=INTEGER})
+			</if>
+			<if test="starttime!=null and ''!=starttime  and endtime!=null and ''!=endtime">
+				and createtime between #{starttime} and DATE_ADD(#{endtime},INTERVAL 1 DAY) and createtime &lt; DATE_ADD(#{endtime},INTERVAL 1 DAY)
+			</if>
+			<if test="fixed==1 or fixed==0">
+				and fixed=#{fixed}
+			</if>
+		</where>
+		limit #{startRow},#{size}
+    </select>
+    
+ <!--   //查询所有用户反馈信息条数 -->
+    <select id="countFeedbackByQueryFeedback" parameterType="QueryFeedback" resultType="int">
+    	 select count(1) from feedback
+    <where>
+			<if test="uId!=null and ''!=uId">
+				<foreach collection="uId" separator="or" item="item">
+					u_id=#{item}
+				</foreach>
+			</if>
+			<if test="cnId==null or ''==cnId">
+				and cn_id=0
+			</if>
+			<if test="cmId!=null">
+				and u_id in(select u_id from user where cm_id=#{cmId,jdbcType=INTEGER})
+			</if>
+			<if test="starttime!=null and ''!=starttime  and endtime!=null and ''!=endtime">
+				and createtime between #{starttime} and DATE_ADD(#{endtime},INTERVAL 1 DAY) and createtime &lt; DATE_ADD(#{endtime},INTERVAL 1 DAY)
+			</if>
+			<if test="fixed==1 or fixed==0">
+				and fixed=#{fixed}
+			</if>
+		</where>
+    </select>
+    
+</mapper>

@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hp.mapper.AdminMapper">
+	<resultMap id="BaseResultMap" type="com.hp.pojo.Admin">
+		<id column="a_id" property="aId" jdbcType="INTEGER" />
+		<result column="a_name" property="aName" jdbcType="VARCHAR" />
+		<result column="a_pwd" property="aPwd" jdbcType="VARCHAR" />
+		<result column="cm_id" property="cmId" jdbcType="INTEGER" />
+		<result column="r_id" property="rId" jdbcType="INTEGER" />
+		<result column="state" property="state" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		a_id, a_name, a_pwd, cm_id, r_id, state
+	</sql>
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="com.hp.pojo.AdminExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from admin
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from admin
+		where a_id = #{aId,jdbcType=INTEGER}
+	</select>
+	<update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		update  admin set state=-1
+		where a_id = #{aId,jdbcType=INTEGER}
+	</update>
+	<update id="deleteByCmid" parameterType="java.lang.Integer">
+		update  admin set state=#{x,jdbcType=INTEGER}
+		where cm_id = #{cmId,jdbcType=INTEGER}
+	</update>
+	<delete id="restoreByPrimaryKey" parameterType="java.lang.Integer">
+		update  admin set state=1
+		where a_id = #{aId,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.hp.pojo.AdminExample">
+		delete from admin
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.hp.pojo.Admin">
+		insert into admin (a_id, a_name, a_pwd,
+		cm_id, r_id, state)
+		values (#{aId,jdbcType=INTEGER}, #{aName,jdbcType=VARCHAR},
+		#{aPwd,jdbcType=VARCHAR},
+		#{cmId,jdbcType=INTEGER}, #{rId,jdbcType=INTEGER}, #{state,jdbcType=INTEGER})
+	</insert>
+	<insert id="insertSelective" parameterType="com.hp.pojo.Admin">
+		insert into admin
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="aId != null">
+				a_id,
+			</if>
+			<if test="aName != null">
+				a_name,
+			</if>
+			<if test="aPwd != null">
+				a_pwd,
+			</if>
+			<if test="cmId != null">
+				cm_id,
+			</if>
+			<if test="rId != null">
+				r_id,
+			</if>
+			<if test="state != null">
+				state,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="aId != null">
+				#{aId,jdbcType=INTEGER},
+			</if>
+			<if test="aName != null">
+				#{aName,jdbcType=VARCHAR},
+			</if>
+			<if test="aPwd != null">
+				#{aPwd,jdbcType=VARCHAR},
+			</if>
+			<if test="cmId != null">
+				#{cmId,jdbcType=INTEGER},
+			</if>
+			<if test="rId != null">
+				#{rId,jdbcType=INTEGER},
+			</if>
+			<if test="state != null">
+				#{state,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.hp.pojo.AdminExample"
+		resultType="java.lang.Integer">
+		select count(*) from admin
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update admin
+		<set>
+			<if test="record.aId != null">
+				a_id = #{record.aId,jdbcType=INTEGER},
+			</if>
+			<if test="record.aName != null">
+				a_name = #{record.aName,jdbcType=VARCHAR},
+			</if>
+			<if test="record.aPwd != null">
+				a_pwd = #{record.aPwd,jdbcType=VARCHAR},
+			</if>
+			<if test="record.cmId != null">
+				cm_id = #{record.cmId,jdbcType=INTEGER},
+			</if>
+			<if test="record.rId != null">
+				r_id = #{record.rId,jdbcType=INTEGER},
+			</if>
+			<if test="record.state != null">
+				state = #{record.state,jdbcType=INTEGER},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update admin
+		set a_id = #{record.aId,jdbcType=INTEGER},
+		a_name = #{record.aName,jdbcType=VARCHAR},
+		a_pwd = #{record.aPwd,jdbcType=VARCHAR},
+		cm_id = #{record.cmId,jdbcType=INTEGER},
+		r_id = #{record.rId,jdbcType=INTEGER},
+		state = #{record.state,jdbcType=INTEGER}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.hp.pojo.Admin">
+		update admin
+		<set>
+			<if test="aName != null">
+				a_name = #{aName,jdbcType=VARCHAR},
+			</if>
+			<if test="aPwd != null">
+				a_pwd = #{aPwd,jdbcType=VARCHAR},
+			</if>
+			<if test="cmId != null">
+				cm_id = #{cmId,jdbcType=INTEGER},
+			</if>
+			<if test="rId != null">
+				r_id = #{rId,jdbcType=INTEGER},
+			</if>
+			<if test="state != null">
+				state = #{state,jdbcType=INTEGER},
+			</if>
+		</set>
+		where a_id = #{aId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.hp.pojo.Admin">
+		update admin
+		set a_name = #{aName,jdbcType=VARCHAR},
+		a_pwd = #{aPwd,jdbcType=VARCHAR},
+		cm_id = #{cmId,jdbcType=INTEGER},
+		r_id = #{rId,jdbcType=INTEGER},
+		state = #{state,jdbcType=INTEGER}
+		where a_id = #{aId,jdbcType=INTEGER}
+	</update>
+
+	<!-- //通过aName进行管理员查询 -->
+	<select id="selectByAdmin" resultMap="BaseResultMap"
+		parameterType="Admin">
+		select * from admin where a_name=#{aName}
+	</select>
+
+	<!-- 通过QueryAdmin进行多条件查询 -->
+	<select id="selectByQueryAdmin" resultMap="BaseResultMap"
+		parameterType="QueryAdmin">
+		select * from admin
+		<where>
+			<if test="aName!=null and ''!=aName">
+				a_name like "%"#{aName}"%"
+			</if>
+			<if test="cmId!=null">
+				and cm_id=#{cmId,javaType=INTEGER}
+			</if>
+			<if test="state!=null">
+				and state=#{state,jdbcType=INTEGER}
+			</if>
+		</where>
+		limit #{startRow},#{size}
+	</select>
+
+	<!-- 查询所有用户 -->
+	<select id="selectAll" resultMap="BaseResultMap">
+		select * from admin
+	</select>
+	<!-- 普通管理员登录查询 -->
+	<select id="selectByNameAndPwd" resultMap="BaseResultMap">
+		select * from admin
+		where state=1 and a_name=#{aName} and a_pwd=#{aPwd}
+	</select>
+
+	<!-- 通过QueryAdmim查询信息条数 -->
+	<select id="countByQueryAdmin" resultType="Integer"
+		parameterType="QueryAdmin">
+		select count(1) from admin
+		<where>
+			<if test="aName!=null and ''!=aName">
+				a_name like "%"#{aName}"%"
+			</if>
+			<if test="cmId!=null">
+				and cm_id=#{cmId,javaType=INTEGER}
+			</if>
+			<if test="state!=null">
+				and state=#{state,jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+
+	<!-- 新增根据管理员名查询 -->
+	<select id="selectByAName" resultMap="BaseResultMap">
+		select * from admin where
+		a_name=#{aName}
+	</select>
+	<!-- 新增根据管理员名获取角色 -->
+	<select id="getRoles" resultType="java.lang.String">
+		select r_name from admin,roles
+		where admin.r_id=roles.id and a_name=#{aName}
+	</select>
+	<!-- 新增根据管理员名获取权限 -->
+	<select id="getPermissions" resultType="java.lang.String">
+		select p_name from
+		admin,roles,permission where admin.r_id=roles.id and
+		roles.id=permission.r_id and a_name=#{aName}
+	</select>
+
+	<!-- 通过账号密码查找管理员并修改密码 -->
+	<update id="updateByNameAndPwd">
+		update admin set a_pwd=#{aPwd2}
+		where a_name=#{aName}
+		and a_pwd=#{aPwd}
+	</update>
+</mapper>

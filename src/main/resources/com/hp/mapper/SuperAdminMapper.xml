@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hp.mapper.SuperAdminMapper" >
+  <resultMap id="BaseResultMap" type="com.hp.pojo.SuperAdmin" >
+    <id column="sa_id" property="saId" jdbcType="INTEGER" />
+    <result column="sa_name" property="saName" jdbcType="VARCHAR" />
+    <result column="sa_pwd" property="saPwd" jdbcType="VARCHAR" />
+    <result column="r_id" property="rId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    sa_id, sa_name, sa_pwd
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.hp.pojo.SuperAdminExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from superadmin
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from superadmin
+    where sa_id = #{saId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from superadmin
+    where sa_id = #{saId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.hp.pojo.SuperAdminExample" >
+    delete from superadmin
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.hp.pojo.SuperAdmin" >
+    insert into superadmin (sa_id, sa_name, sa_pwd
+      )
+    values (#{saId,jdbcType=INTEGER}, #{saName,jdbcType=VARCHAR}, #{saPwd,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.hp.pojo.SuperAdmin" >
+    insert into superadmin
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="saId != null" >
+        sa_id,
+      </if>
+      <if test="saName != null" >
+        sa_name,
+      </if>
+      <if test="saPwd != null" >
+        sa_pwd,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="saId != null" >
+        #{saId,jdbcType=INTEGER},
+      </if>
+      <if test="saName != null" >
+        #{saName,jdbcType=VARCHAR},
+      </if>
+      <if test="saPwd != null" >
+        #{saPwd,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.hp.pojo.SuperAdminExample" resultType="java.lang.Integer" >
+    select count(*) from superadmin
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update superadmin
+    <set >
+      <if test="record.saId != null" >
+        sa_id = #{record.saId,jdbcType=INTEGER},
+      </if>
+      <if test="record.saName != null" >
+        sa_name = #{record.saName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.saPwd != null" >
+        sa_pwd = #{record.saPwd,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update superadmin
+    set sa_id = #{record.saId,jdbcType=INTEGER},
+      sa_name = #{record.saName,jdbcType=VARCHAR},
+      sa_pwd = #{record.saPwd,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hp.pojo.SuperAdmin" >
+    update superadmin
+    <set >
+      <if test="saName != null" >
+        sa_name = #{saName,jdbcType=VARCHAR},
+      </if>
+      <if test="saPwd != null" >
+        sa_pwd = #{saPwd,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where sa_id = #{saId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hp.pojo.SuperAdmin" >
+    update superadmin
+    set sa_name = #{saName,jdbcType=VARCHAR},
+      sa_pwd = #{saPwd,jdbcType=VARCHAR}
+    where sa_id = #{saId,jdbcType=INTEGER}
+  </update>
+   <!-- 超级管理员登录查询 -->
+  <select id="selectByNameAndPwd" resultMap="BaseResultMap">
+  		select * from superadmin where sa_name=#{saName} and sa_pwd=#{saPwd}
+  </select>
+  
+  <!--   通过账号密码查找管理员并修改密码 -->
+	<update id="updateByNameAndPwd" >
+		update superadmin set sa_pwd=#{saPwd2} where sa_name=#{saName} and sa_pwd=#{saPwd}
+	</update>
+	
+	 <!-- 新增根据超级管理员名查询 -->
+  <select id="selectBySAName" resultMap="BaseResultMap">
+  		select * from superadmin where sa_name=#{saName}
+  </select>
+  <!-- 新增根据超级管理员名获取角色 -->
+  <select id="getRoles" resultType="java.lang.String">
+  		select r_name from superadmin,roles where superadmin.r_id=roles.id and sa_name=#{saName}
+  </select>
+  <!-- 新增根据超级管理员名获取权限 -->
+  <select id="getPermissions" resultType="java.lang.String">
+  		select p_name from superadmin,roles,permission where superadmin.r_id=roles.id and roles.id=permission.r_id and sa_name=#{saName}
+  </select>
+</mapper>

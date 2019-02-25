@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hp.mapper.RecordMapper">
+	<resultMap id="BaseResultMap" type="com.hp.pojo.Record">
+		<id column="r_id" property="rId" jdbcType="INTEGER" />
+		<result column="u_id" property="uId" jdbcType="INTEGER" />
+		<result column="cn_id" property="cnId" jdbcType="INTEGER" />
+		<result column="cm_id" property="cmId" jdbcType="INTEGER" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+		<result column="handletime" property="handletime" jdbcType="TIMESTAMP" />
+		<result column="handle" property="handle" jdbcType="INTEGER" />
+		<result column="handler" property="handler" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="UserRecordResultMap" type="com.hp.pojo.QueryUserRecord">
+		<id column="u_id" property="uId" jdbcType="INTEGER" />
+		<result column="cn_name" property="cnName" jdbcType="VARCHAR" />
+		<result column="room_id" property="roomId" jdbcType="INTEGER" />
+		<result column="createtime" property="starttime" jdbcType="TIMESTAMP" />
+		<result column="handletime" property="endtime" jdbcType="TIMESTAMP" />
+		<result column="handle" property="handle" jdbcType="INTEGER" />
+		<result column="handler" property="handler" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		r_id, u_id, cn_id, cm_id, createtime, handletime, handle,
+		handler
+	</sql>
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="com.hp.pojo.RecordExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		<include refid="Base_Column_List" />
+		from record
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+
+	<!-- 通过QueryRecord进行多条件查询 -->
+	<select id="selectByQueryRecord" resultMap="BaseResultMap"
+		parameterType="QueryRecord">
+		select * from record
+		<where>
+			<if test="uId!=null and ''!=uId">
+				<foreach collection="uId" separator="or" item="item">
+					u_id=#{item}
+				</foreach>
+			</if>
+			<if test="cnId!=null and ''!=cnId">
+				and cn_id=#{cnId}
+			</if>
+			<if test="cmId!=null">
+				and cm_id=#{cmId,javaType=INTEGER}
+			</if>
+			<if test="handle==1 or handle==0">
+				and handle=#{handle}
+			</if>
+			<if test="handler!=null and ''!=handler">
+				and handler=#{handler}
+			</if>
+			<if test="starttime!=null and ''!=starttime  and endtime!=null and ''!=endtime">
+				and createtime between #{starttime} and DATE_ADD(#{endtime},INTERVAL 1 DAY) and createtime &lt; DATE_ADD(#{endtime},INTERVAL 1 DAY)
+			</if>
+		</where>
+		limit #{startRow},#{size}
+	</select>
+
+	<!-- 通过QueryUserRecord进行多条件查询 -->
+	<select id="selectByQueryUserRecord" resultMap="UserRecordResultMap"
+		parameterType="QueryUserRecord">
+		select u_id,cn_name,room_id,createtime,handletime,handle,handler from
+		record,controls
+		<where>
+			record.cn_id=controls.cn_id and u_id=#{uId}
+			<if test="cnName!=null and ''!=cnName">
+				and cn_name like "%"#{cnName}"%"
+			</if>
+			<if test="roomId!=null and ''!=roomId">
+				and room_id=#{roomId}
+			</if>
+			<if test="handle==1 or handle==0">
+				and handle=#{handle}
+			</if>
+			<if test="handler!=null and ''!=handler">
+				and handler=#{handler}
+			</if>
+			<if
+				test="starttime!=null and ''!=starttime  and endtime!=null and ''!=endtime">
+				and createtime between #{starttime} and DATE_ADD(#{endtime},INTERVAL 1 DAY) and createtime &lt; DATE_ADD(#{endtime},INTERVAL 1 DAY)
+			</if>
+		</where>
+		limit #{startRow},#{size}
+	</select>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from record
+		where r_id = #{rId,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from record
+		where r_id = #{rId,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.hp.pojo.RecordExample">
+		delete from record
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.hp.pojo.Record">
+		insert into record ( u_id,
+		cn_id,
+		cm_id, createtime, handletime,
+		handle, handler)
+		values
+		(#{uId,jdbcType=INTEGER}, #{cnId,jdbcType=INTEGER},
+		#{cmId,jdbcType=INTEGER}, #{createtime,jdbcType=TIMESTAMP},
+		#{handletime,jdbcType=TIMESTAMP},
+		#{handle,jdbcType=INTEGER},
+		#{handler,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.hp.pojo.Record">
+		insert into record
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="rId != null">
+				r_id,
+			</if>
+			<if test="uId != null">
+				u_id,
+			</if>
+			<if test="cnId != null">
+				cn_id,
+			</if>
+			<if test="cmId != null">
+				cm_id,
+			</if>
+			<if test="createtime != null">
+				createtime,
+			</if>
+			<if test="handletime != null">
+				handletime,
+			</if>
+			<if test="handle != null">
+				handle,
+			</if>
+			<if test="handler != null">
+				handler,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="rId != null">
+				#{rId,jdbcType=INTEGER},
+			</if>
+			<if test="uId != null">
+				#{uId,jdbcType=INTEGER},
+			</if>
+			<if test="cnId != null">
+				#{cnId,jdbcType=INTEGER},
+			</if>
+			<if test="cmId != null">
+				#{cmId,jdbcType=INTEGER},
+			</if>
+			<if test="createtime != null">
+				#{createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="handletime != null">
+				#{handletime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="handle != null">
+				#{handle,jdbcType=INTEGER},
+			</if>
+			<if test="handler != null">
+				#{handler,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.hp.pojo.RecordExample"
+		resultType="java.lang.Integer">
+		select count(*) from record
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+
+	<!-- 通过QueryRecord查询信息条数 -->
+	<select id="countByQueryRecord" resultType="Integer"
+		parameterType="QueryRecord">
+		select count(1) from record
+		<where>
+			<if test="uId!=null and ''!=uId">
+				<foreach collection="uId" separator="or" item="item">
+					u_id=#{item}
+				</foreach>
+			</if>
+			<if test="cnId!=null and ''!=cnId">
+				and cn_id=#{cnId}
+			</if>
+			<if test="cmId!=null">
+				and cm_id=#{cmId,javaType=INTEGER}
+			</if>
+			<if test="handle==1 or handle==0">
+				and handle=#{handle}
+			</if>
+			<if test="handler!=null and ''!=handler">
+				and handler=#{handler}
+			</if>
+			<if
+				test="starttime!=null and ''!=starttime  and endtime!=null and ''!=endtime">
+				and createtime between #{starttime} and DATE_ADD(#{endtime},INTERVAL 1 DAY) and createtime &lt; DATE_ADD(#{endtime},INTERVAL 1 DAY)
+			</if>
+
+		</where>
+	</select>
+
+	<!-- 通过QueryUserRecord查询信息条数 -->
+	<select id="countByQueryUserRecord" resultType="Integer"
+		parameterType="QueryUserRecord">
+		select count(1) from record,controls
+		<where>
+			record.cn_id=controls.cn_id and u_id=#{uId}
+
+			<if test="cnName!=null and ''!=cnName">
+				and cn_name like "%"#{cnName}"%"
+			</if>
+			<if test="roomId!=null and ''!=roomId">
+				and room_id=#{roomId}
+			</if>
+			<if test="handle==1 or handle==0">
+				and handle=#{handle}
+			</if>
+			<if test="handler!=null and ''!=handler">
+				and handler=#{handler}
+			</if>
+			<if
+				test="starttime!=null and ''!=starttime  and endtime!=null and ''!=endtime">
+				and createtime between #{starttime} and DATE_ADD(#{endtime},INTERVAL 1 DAY) and createtime &lt; DATE_ADD(#{endtime},INTERVAL 1 DAY)
+			</if>
+
+		</where>
+	</select>
+
+
+	<!-- 根据控件id和用户id和用户所在小区id查询异常记录表中的记录 -->
+	<select id="queryRecordByInfo" parameterType="Integer"
+		resultMap="BaseResultMap">
+		select * from record where u_id=#{0} and cn_id=#{1} and
+		cm_id=#{2} and handle = 0
+		group by u_id
+	</select>
+	<!-- //用户处理控件异常增加记录表中的处理记录 -->
+	<update id="modRecordByUser" parameterType="com.hp.pojo.Record">
+		update record set
+		handletime = #{handletime},handle = #{handle}
+		,handler = #{handler}
+		where u_id=#{uId} and cn_id=#{cnId} and cm_id=#{cmId} and handle=0
+	</update>
+	<update id="updateByExampleSelective" parameterType="map">
+		update record
+		<set>
+			<if test="record.rId != null">
+				r_id = #{record.rId,jdbcType=INTEGER},
+			</if>
+			<if test="record.uId != null">
+				u_id = #{record.uId,jdbcType=INTEGER},
+			</if>
+			<if test="record.cnId != null">
+				cn_id = #{record.cnId,jdbcType=INTEGER},
+			</if>
+			<if test="record.cmId != null">
+				cm_id = #{record.cmId,jdbcType=INTEGER},
+			</if>
+			<if test="record.createtime != null">
+				createtime = #{record.createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.handletime != null">
+				handletime = #{record.handletime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.handle != null">
+				handle = #{record.handle,jdbcType=INTEGER},
+			</if>
+			<if test="record.handler != null">
+				handler = #{record.handler,jdbcType=VARCHAR},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update record
+		set r_id = #{record.rId,jdbcType=INTEGER},
+		u_id =
+		#{record.uId,jdbcType=INTEGER},
+		cn_id =
+		#{record.cnId,jdbcType=INTEGER},
+		cm_id =
+		#{record.cmId,jdbcType=INTEGER},
+		createtime =
+		#{record.createtime,jdbcType=TIMESTAMP},
+		handletime =
+		#{record.handletime,jdbcType=TIMESTAMP},
+		handle =
+		#{record.handle,jdbcType=INTEGER},
+		handler =
+		#{record.handler,jdbcType=VARCHAR}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.hp.pojo.Record">
+		update record
+		<set>
+			<if test="uId != null">
+				u_id = #{uId,jdbcType=INTEGER},
+			</if>
+			<if test="cnId != null">
+				cn_id = #{cnId,jdbcType=INTEGER},
+			</if>
+			<if test="cmId != null">
+				cm_id = #{cmId,jdbcType=INTEGER},
+			</if>
+			<if test="createtime != null">
+				createtime = #{createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="handletime != null">
+				handletime = #{handletime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="handle != null">
+				handle = #{handle,jdbcType=INTEGER},
+			</if>
+			<if test="handler != null">
+				handler = #{handler,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where r_id = #{rId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.hp.pojo.Record">
+		update record
+		set
+		u_id = #{uId,jdbcType=INTEGER},
+		cn_id = #{cnId,jdbcType=INTEGER},
+		cm_id
+		= #{cmId,jdbcType=INTEGER},
+		createtime =
+		#{createtime,jdbcType=TIMESTAMP},
+		handletime =
+		#{handletime,jdbcType=TIMESTAMP},
+		handle = #{handle,jdbcType=INTEGER},
+		handler = #{handler,jdbcType=VARCHAR}
+		where r_id =
+		#{rId,jdbcType=INTEGER}
+	</update>
+	<!-- 查询本周每一天的异常数 -->
+	<select id="selectByWeekEveryDay" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select count(createtime) count
+		from record
+		WHERE createtime BETWEEN #{0}
+		AND DATE_ADD(#{1},INTERVAL 1 DAY)
+		<if test="uId != null and uId != '' or uId!=0">
+			AND u_id=#{uId}
+		</if>
+		group by DATE_FORMAT(createtime,'%Y%m%d')
+	</select>
+	<!-- 统计本周有哪些日期有异常 -->
+	<select id="selectByWeekDate" resultType="java.lang.String">
+		select CAST(createtime AS date)
+		from record
+		WHERE createtime BETWEEN
+		#{0} AND DATE_ADD(#{1},INTERVAL 1 DAY)
+		<if test="uId != null and uId != '' or uId!=0">
+			AND u_id=#{uId}
+		</if>
+		group by DATE_FORMAT(createtime,'%Y%m%d')
+	</select>
+	<!-- 统计从注册到当前时间每天的异常数 -->
+	<select id="selectByAllErrors" resultType="java.lang.Integer">
+		select count(createtime) count
+		from record
+
+		<if test="uId != null and uId != '' or uId!=0">
+			where u_id=#{uId}
+		</if>
+		group by DATE_FORMAT(createtime,'%Y%m%d')
+	</select>
+	<!-- 统计从注册到当前时间有哪些日期有异常，作为图表的x轴 -->
+	<select id="selectAllDate" resultType="java.lang.String">
+		SELECT DISTINCT CAST(createtime AS date)
+		FROM record
+
+		<if test="uId != null and uId != '' or uId!=0">
+			where u_id=#{uId}
+		</if>
+		ORDER BY record.createtime
+	</select>
+	<!-- 查询本月、本年每一天的异常数 -->
+	<select id="selectByMonthEveryDay" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select count(createtime) count
+		from record
+		WHERE createtime BETWEEN #{0}
+		AND DATE_ADD(#{1},INTERVAL 1 DAY)
+		<if test="uId != null and uId != '' or uId!=0">
+			AND u_id=#{uId}
+		</if>
+		group by DATE_FORMAT(createtime,'%Y%m%d')
+
+	</select>
+	<!-- 统计本月、本年有哪些日期有异常 -->
+	<select id="selectByMonthDate" resultType="java.lang.String">
+		select DISTINCT CAST(createtime AS date)
+		from record
+		WHERE createtime
+		BETWEEN #{0} AND DATE_ADD(#{1},INTERVAL 1 DAY)
+		<if test="uId != null and uId != '' or uId!=0">
+			AND u_id=#{uId}
+		</if>
+		group by DATE_FORMAT(createtime,'%Y%m%d')
+		ORDER BY record.createtime
+	</select>
+	<!-- 超级管理员查询每月异常数 -->
+	<select id="selectRecordByEveryMonthSuperManager" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select count(createtime) count
+		from record
+		WHERE createtime BETWEEN #{0}
+		AND DATE_ADD(#{1},INTERVAL 1 DAY)
+		group by DATE_FORMAT(createtime,'%Y%m')
+	</select>
+	<!-- 超级管理员查询本年出现异常的月份 -->
+	<select id="selectMonthSuperManager" resultType="java.lang.String">
+		select DATE_FORMAT(createtime,'%m') as month
+		from record
+		WHERE createtime BETWEEN #{0}
+		AND DATE_ADD(#{1},INTERVAL 1 DAY)
+		group by DATE_FORMAT(createtime,'%Y%m')
+	</select>
+	<!-- 超级管理员查询每年异常数 -->
+	<select id="selectRecordByEveryYearSuperManager" 
+		resultType="java.lang.Integer">
+		select count(createtime) count
+		from record
+		group by DATE_FORMAT(createtime,'%Y')
+	</select>
+	<!-- 超级管理员查询出现异常的年份 -->
+	<select id="selectYearSuperManager" resultType="java.lang.String">
+		select DATE_FORMAT(createtime,'%Y') as year
+		from record
+		group by DATE_FORMAT(createtime,'%Y')
+	</select>
+	<!-- 根据场景id查询每个控件的异常数 -->
+	<select id="selectBySceneId" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM
+		record,controls
+		where record.u_id=#{uId} and
+		controls.room_id=#{sceneid} and record.cn_id=controls.cn_id
+		GROUP BY
+		controls.cn_id
+	</select>
+	<!-- 根据场景id查询每个控件的控件名 -->
+	<select id="selectConNameBySceneId" resultType="java.lang.String">
+		SELECT
+		controls.cn_name
+		FROM record,controls
+		where record.u_id=#{uId} and
+		controls.room_id=#{sceneid} and record.cn_id=controls.cn_id
+		GROUP BY
+		controls.cn_id
+	</select>
+	<!-- 超级管理员根据小区对异常分组 -->
+	<select id="selectByCommunity" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM
+		record,community
+		where record.cm_id=community.cm_id
+		GROUP BY
+		community.cm_id
+	</select>
+	<!-- 所有有异常的小区名 -->
+	<select id="selectCommName" resultType="java.lang.String">
+		SELECT community.cm_name
+		FROM record,community
+		where record.cm_id=community.cm_id
+		GROUP BY
+		community.cm_id
+	</select>
+
+	<!-- 查询所有小区异常记录数和小区id -->
+	<select id="selectAllCountByCmid" resultType="java.util.Map">
+		select cm_id as
+		cmId,count(*) as count from record group by cm_id
+	</select>
+	<!-- 查询所有小区未处理异常记录数和小区id -->
+	<select id="selectAllNotRestoreByCmid" resultType="java.util.Map">
+		select cm_id as
+		cmId,count(*) as count from record where handle=0 group by cm_id 
+	</select>
+	<!-- 分场景查询异常记录表 -->
+	<select id="selectByScene" resultType="java.lang.Integer">
+			select count(*) from record,controls where record.cn_id=controls.cn_id and cm_id=#{cmId} group by controls.room_id
+	</select>
+	<!-- 分场景查询异常记录表,结果存在异常的场景集合-->
+	<select id="selectScene" resultType="java.lang.Integer">
+			select controls.room_id from record,controls where record.cn_id=controls.cn_id and cm_id=#{cmId} group by controls.room_id
+	</select>
+	<!-- 查询一个小区里异常排名前十的用户名 -->
+	<select id="selectTopTenUName"  resultType="java.lang.String">
+		select user.u_name from user,record where user.u_id=record.u_id and record.cm_id=#{cmId} and user.u_id IN (select user.u_id from community,user where user.cm_id=community.cm_id and user.cm_id=#{cmId}) group by user.u_id order by count(record.r_id) desc limit 10
+	</select>
+	<!-- 查询一个小区里异常排名前十的异常数 -->
+	<select id="selectTopTenSum" resultType="java.lang.Integer">
+		select count(record.r_id) from user,record where user.u_id=record.u_id and record.cm_id=#{cmId} and user.u_id IN (select user.u_id from community,user where user.cm_id=community.cm_id and user.cm_id=#{cmId}) group by user.u_id order by count(record.r_id) desc limit 10
+	</select>
+</mapper>

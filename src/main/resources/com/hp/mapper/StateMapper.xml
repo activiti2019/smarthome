@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hp.mapper.StateMapper" >
+  <resultMap id="BaseResultMap" type="com.hp.pojo.State" >
+    <id column="st_id" property="stId" jdbcType="INTEGER" />
+    <result column="u_id" property="uId" jdbcType="INTEGER" />
+    <result column="cn_id" property="cnId" jdbcType="INTEGER" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="onoff" property="onoff" jdbcType="INTEGER" />
+    <result column="temperature" property="temperature" jdbcType="VARCHAR" />
+    <result column="light" property="light" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    st_id, u_id, cn_id, state, onoff, temperature, light
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.hp.pojo.StateExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from state
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  
+   <!--   通过QueryState进行多条件查询 -->
+  <select id="selectByQueryState" resultMap="BaseResultMap" parameterType="QueryState" >
+    select * from state
+    <where>
+			<if test="uId!=null and ''!=uId">
+				<foreach collection="uId" separator="or" item="item">
+					u_id=#{item}
+				</foreach>
+			</if>
+			<if test="cnId!=null and ''!=cnId">
+				and cn_id=#{cnId}
+			</if>
+			<if test="state==0 or state==1">
+				and state=#{state}
+			</if>
+			<if test="onoff==0 or onoff==1">
+				and onoff=#{onoff}
+			</if>
+			<if test="cmId!=null">
+				and u_id in(select u_id from user where cm_id=#{cmId,javaType=INTEGER})
+			</if>
+		</where>
+		limit #{startRow},#{size}
+  </select>
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from state
+    where st_id = #{stId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from state
+    where st_id = #{stId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.hp.pojo.StateExample" >
+    delete from state
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.hp.pojo.State" >
+    insert into state (st_id, u_id, cn_id, 
+      state, onoff, temperature, 
+      light)
+    values (#{stId,jdbcType=INTEGER}, #{uId,jdbcType=INTEGER}, #{cnId,jdbcType=INTEGER}, 
+      #{state,jdbcType=INTEGER}, #{onoff,jdbcType=INTEGER}, #{temperature,jdbcType=VARCHAR}, 
+      #{light,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.hp.pojo.State" >
+    insert into state
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="stId != null" >
+        st_id,
+      </if>
+      <if test="uId != null" >
+        u_id,
+      </if>
+      <if test="cnId != null" >
+        cn_id,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+      <if test="onoff != null" >
+        onoff,
+      </if>
+      <if test="temperature != null" >
+        temperature,
+      </if>
+      <if test="light != null" >
+        light,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="stId != null" >
+        #{stId,jdbcType=INTEGER},
+      </if>
+      <if test="uId != null" >
+        #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="cnId != null" >
+        #{cnId,jdbcType=INTEGER},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="onoff != null" >
+        #{onoff,jdbcType=INTEGER},
+      </if>
+      <if test="temperature != null" >
+        #{temperature,jdbcType=VARCHAR},
+      </if>
+      <if test="light != null" >
+        #{light,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.hp.pojo.StateExample" resultType="java.lang.Integer" >
+    select count(*) from state
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  
+  <!--   通过QueryState查询符合条件的信息数量-->
+  <select id="countByQueryState" resultType="Integer" parameterType="QueryState" >
+    select count(1) from state
+    <where>
+			<if test="uId!=null and ''!=uId">
+				<foreach collection="uId" separator="or" item="item">
+					u_id=#{item}
+				</foreach>
+			</if>
+			<if test="cnId!=null and ''!=cnId">
+				and cn_id=#{cnId}
+			</if>
+			<if test="state==0 or state==1">
+				and state=#{state}
+			</if>
+			<if test="onoff==0 or onoff==1">
+				and onoff=#{onoff}
+			</if>
+			<if test="cmId!=null">
+				and u_id in(select u_id from user where cm_id=#{cmId,javaType=INTEGER})
+			</if>
+		</where>
+  </select>
+  
+  <!-- 查询用户当前控件状态 -->
+  <select id="selectStateByUId"  parameterType="Integer"  resultMap="BaseResultMap">
+  	select * from state where u_id = #{uid}
+  </select>
+  <!-- 根据用户id查询当前用户已安装控件id -->
+  <select id="selectStateIdByUId" parameterType="Integer" resultType="Integer">
+  	select cn_id from state where u_id = #{uid}
+  </select>
+  <!-- 根据用户异常控件id返回控件名称 -->
+  <select id="queryStateName" parameterType="com.hp.pojo.State" resultType="String">
+  	select c.cn_name from controls c , state s where c.cn_id=s.cn_id and s.u_id = #{uId} and s.cn_id = #{cnId} and s.state = #{state}
+  </select>
+  <!-- 根据控件id和用户id增加控件 -->
+  <insert id="addStateById" parameterType="com.hp.pojo.State" >
+  	insert into state(u_id,cn_id,state,onoff,temperature,light) values(#{uId},#{cnId},#{state},#{onoff},#{temperature},#{light})
+  </insert>
+  <!-- 根据控件id和用户id查看控件 -->
+  <select id="queryStateById"  parameterType="Integer"  resultMap="BaseResultMap">
+ 	select * from state where u_id = #{0} and cn_id = #{1}
+  </select>
+  <!-- 根据控件id和用户id删除控件 -->
+  <delete id="delStateById" parameterType="Integer">
+  	delete from state where u_id = #{0} and cn_id = #{1}
+  </delete>
+  <!-- 根据用户id查询客厅当前状态 -->
+  <select id="queryParState" parameterType="Integer" resultMap="BaseResultMap">
+  	select s.* from state s,controls c where s.cn_id=c.cn_id  and c.room_id=1 and s.u_id=#{uid}
+  </select>
+  <!-- 根据用户id查询卧室当前状态 -->
+  <select id="queryBedState" parameterType="Integer" resultMap="BaseResultMap">
+  	select s.* from state s,controls c where s.cn_id=c.cn_id  and c.room_id=2 and s.u_id=#{uid}
+  </select>
+  <!-- 根据用户id查询厨房当前状态 -->
+  <select id="queryKitState" parameterType="Integer" resultMap="BaseResultMap">
+  	select s.* from state s,controls c where s.cn_id=c.cn_id  and c.room_id=3 and s.u_id=#{uid}
+  </select>
+  <!-- 根据用户id查询餐厅当前状态 -->
+  <select id="queryDinState" parameterType="Integer" resultMap="BaseResultMap">
+	  	select s.* from state s,controls c where s.cn_id=c.cn_id  and c.room_id=4 and s.u_id=#{uid}
+  </select>
+  <!-- 根据用户id查询阳台当前状态 --> 
+  <select id="queryBalState" parameterType="Integer" resultMap="BaseResultMap">
+    	select s.* from state s,controls c where s.cn_id=c.cn_id  and c.room_id=5 and s.u_id=#{uid}
+  </select>
+  <!-- 根据用户id查询浴室当前状态 --> 
+  <select id="queryBathState" parameterType="Integer" resultMap="BaseResultMap">
+  	select s.* from state s,controls c where s.cn_id=c.cn_id  and c.room_id=6 and s.u_id=#{uid}
+  </select>
+  
+  <!-- 修改控件状态 -->
+  <update id="modState" parameterType="com.hp.pojo.State">
+  	update  state set onoff = #{onoff},light = #{light} 
+  	,temperature= #{temperature},state=#{state} where cn_id = #{cnId} and u_id = #{uId}
+  </update>
+  <select id="queryStateByUidCnid" parameterType="Integer" resultType="com.hp.pojo.State">
+  	select * from state where u_id = #{0} and cn_id = #{1}
+  </select>
+  
+  <update id="updateByExampleSelective" parameterType="map">
+    update state
+    <set >
+      <if test="record.stId != null" >
+        st_id = #{record.stId,jdbcType=INTEGER},
+      </if>
+      <if test="record.uId != null" >
+        u_id = #{record.uId,jdbcType=INTEGER},
+      </if>
+      <if test="record.cnId != null" >
+        cn_id = #{record.cnId,jdbcType=INTEGER},
+      </if>
+      <if test="record.state != null" >
+        state = #{record.state,jdbcType=INTEGER},
+      </if>
+      <if test="record.onoff != null" >
+        onoff = #{record.onoff,jdbcType=INTEGER},
+      </if>
+      <if test="record.temperature != null" >
+        temperature = #{record.temperature,jdbcType=VARCHAR},
+      </if>
+      <if test="record.light != null" >
+        light = #{record.light,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update state
+    set st_id = #{record.stId,jdbcType=INTEGER},
+      u_id = #{record.uId,jdbcType=INTEGER},
+      cn_id = #{record.cnId,jdbcType=INTEGER},
+      state = #{record.state,jdbcType=INTEGER},
+      onoff = #{record.onoff,jdbcType=INTEGER},
+      temperature = #{record.temperature,jdbcType=VARCHAR},
+      light = #{record.light,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hp.pojo.State" >
+    update state
+    <set >
+      <if test="uId != null" >
+        u_id = #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="cnId != null" >
+        cn_id = #{cnId,jdbcType=INTEGER},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="onoff != null" >
+        onoff = #{onoff,jdbcType=INTEGER},
+      </if>
+      <if test="temperature != null" >
+        temperature = #{temperature,jdbcType=VARCHAR},
+      </if>
+      <if test="light != null" >
+        light = #{light,jdbcType=INTEGER},
+      </if>
+    </set>
+    where st_id = #{stId,jdbcType=INTEGER}
+  </update>
+ 	<!--通过用户id和控件id修改状态 --> 
+  <update id="updateByUidAndCnidSelective" parameterType="com.hp.pojo.State" >
+    update state
+    <set >
+      <if test="uId != null" >
+        u_id = #{uId,jdbcType=INTEGER},
+      </if>
+      <if test="cnId != null" >
+        cn_id = #{cnId,jdbcType=INTEGER},
+      </if>
+      <if test="state== 1 or state==0" >
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="onoff ==1 or onoff==0" >
+        onoff = #{onoff,jdbcType=INTEGER},
+      </if>
+      <if test="temperature != null" >
+        temperature = #{temperature,jdbcType=VARCHAR},
+      </if>
+      <if test="light != null" >
+        light = #{light,jdbcType=INTEGER},
+      </if>
+    </set>
+    where u_id = #{uId,jdbcType=INTEGER} and cn_id = #{cnId,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.hp.pojo.State" >
+    update state
+    set u_id = #{uId,jdbcType=INTEGER},
+      cn_id = #{cnId,jdbcType=INTEGER},
+      state = #{state,jdbcType=INTEGER},
+      onoff = #{onoff,jdbcType=INTEGER},
+      temperature = #{temperature,jdbcType=VARCHAR},
+      light = #{light,jdbcType=INTEGER}
+    where st_id = #{stId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+	<!-- 配置 读取properties文件 jdbc.properties -->
+	<context:property-placeholder location="classpath:jdbc.properties" />
+
+	<!-- 配置 数据源 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close" init-method="init">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="filters" value="stat" />
+	</bean>
+
+	<!-- 跟mybatis的整合 -->
+
+	<!-- 配置SqlSessionFactory -->
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 设置MyBatis核心配置文件 -->
+		<property name="configLocation" value="classpath:mybatis/sqlMapConfig.xml" />
+		<!-- 设置数据源 -->
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 配置Mapper扫描,将mybatis接口的实现加到ioc容器中 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 设置Mapper扫描包 -->
+		<property name="basePackage" value="com.hp.mapper" />
+	</bean>
+
+	<!--自定义Realm -->
+	<bean id="myRealm" class="com.hp.realm.MyRealm" />
+	<bean id="myRealmAdmin" class="com.hp.realm.MyRealmAdmin" />
+	<bean id="myRealmSuperAdmin" class="com.hp.realm.MyRealmSuperAdmin" />
+	<!--安全管理 -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realms">
+			<list>
+				<ref bean="myRealm" />
+				<ref bean="myRealmAdmin" />
+				<ref bean="myRealmSuperAdmin" />
+			</list>
+		</property>
+	</bean>
+
+	<!--shiro 过滤器 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- Shiro过滤器的核心安全接口，这个属性是必须的 -->
+		<property name="securityManager" ref="securityManager" />
+		<!--身份认证失败，则跳转到登录页面的配置 -->
+		<property name="loginUrl" value="/index.jsp" />
+		<!--权限认证失败，则跳转到指定页面 -->
+		<property name="unauthorizedUrl" value="/unauthorized.jsp" />
+		<!-- Shiro连接约束配置，即过滤链的定义 -->
+		<property name="filterChainDefinitions">
+			<value>
+				/login=anon
+				/register=anon
+				/user/getComList1=anon
+				/user/userNameExsits=anon
+				/user/loginSuccess=authc,roles[user]
+				/user/getComList=authc,roles[user]
+				/user/userLogout=authc,roles[user]
+				/user/getUserInfo=authc,roles[user]
+				/user/getUserMode=authc,roles[user]
+				/user/updateUserInfo=authc,roles[user]
+				/user/updateUserpwd=authc,roles[user]
+				/compage/*.jsp=authc,roles[user]
+				/modeController/modeAction=authc,roles[user]
+				/record/selectByWeekEveryDay=authc,roles[user]
+				/record/selectByEveryDay=authc,roles[user]
+				/record/selectByMonthEveryDay=authc,roles[user]
+				/record/selectByYearEveryDay=authc,roles[user]
+				/record/selectByCustomEveryDay=authc,roles[user]
+				/record/selectByScene=authc,roles[user]
+				/state/queryState=authc,roles[user]
+				/state/queryStateName=authc,roles[user]
+				/state/addState=authc,roles[user]
+				/state/delState=authc,roles[user]
+				/state/modState=authc,roles[user]
+				/state/queryParState=authc,roles[user]
+				/state/queryBedState=authc,roles[user]
+				/state/queryKitState=authc,roles[user]
+				/state/queryDinState=authc,roles[user]
+				/state/queryBalState=authc,roles[user]
+				/state/queryBathState=authc,roles[user]
+				/user/recordlist=authc,roles[user]
+				/feedback/addFeedback=authc,roles[user]
+				<!-- /user/student*/**=roles[teacher] /user/teacher*/**=perms["user:create"] -->
+			</value>
+		</property>
+	</bean>
+	<!--shiro 过滤器 -->
+	<bean id="shiroFilterAdmin" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- Shiro过滤器的核心安全接口，这个属性是必须的 -->
+		<property name="securityManager" ref="securityManager" />
+		<!--身份认证失败，则跳转到登录页面的配置 -->
+		<property name="loginUrl" value="/login.jsp" />
+		<!--权限认证失败，则跳转到指定页面 -->
+		<property name="unauthorizedUrl" value="/unauthorized.jsp" />
+		<!-- Shiro连接约束配置，即过滤链的定义 -->
+		<property name="filterChainDefinitions">
+			<value>
+				/login=anon
+				/admin/login.action=anon
+				/logout=authc,roles[admin]
+				/user2/**=authc,roles[admin]
+				/admin/update=authc,roles[admin]
+				/record2/**=authc,roles[admin]
+				/state2/**=authc,roles[admin]
+				/statistics/showeverypart=authc,roles[admin]
+				/statistics/showtopten=authc,roles[admin]
+			</value>
+		</property>
+	</bean>
+	<!--shiro 过滤器 -->
+	<bean id="shiroFilterSuperAdmin" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- Shiro过滤器的核心安全接口，这个属性是必须的 -->
+		<property name="securityManager" ref="securityManager" />
+		<!--身份认证失败，则跳转到登录页面的配置 -->
+		<property name="loginUrl" value="/superlogin.jsp" />
+		<!--权限认证失败，则跳转到指定页面 -->
+		<property name="unauthorizedUrl" value="/unauthorized.jsp" />
+		<!-- Shiro连接约束配置，即过滤链的定义 -->
+		<property name="filterChainDefinitions">
+			<value>
+				/login=anon
+				/superadmin/login=anon
+				/superlogout=authc,roles[superadmin]
+				/superadmin/update=authc,roles[superadmin]
+				/admin/list=authc,roles[superadmin]
+				/admin/edit=authc,roles[superadmin]
+				/admin/update.action=authc,roles[superadmin]
+				/admin/delete=authc,roles[superadmin]
+				/admin/add=authc,roles[superadmin]
+				/community/**=authc,roles[superadmin]
+				/controls/**=authc,roles[superadmin]
+				/map/**=authc,roles[superadmin]
+				/record/list=authc,roles[superadmin]
+				/record/selectByWeekEveryDayManager=authc,roles[superadmin]
+				/record/selectByEveryDayManager=authc,roles[superadmin]
+				/record/selectByMonthEveryDayMonth=authc,roles[superadmin]
+				/record/selectByYearEveryDayManager=authc,roles[superadmin]
+				/record/selectByCustomEveryDayManager=authc,roles[superadmin]
+				/record/selectByCommunityManager=authc,roles[superadmin]
+				/state/list=authc,roles[superadmin]
+				/statistics/showall=authc,roles[superadmin]
+				/statistics/showweek=authc,roles[superadmin]
+				/statistics/showmonth=authc,roles[superadmin]
+				/statistics/showyear=authc,roles[superadmin]
+				/statistics/showcustomer=authc,roles[superadmin]
+				/statistics/showcommunity=authc,roles[superadmin]
+				/user/list=authc,roles[superadmin]
+				/user/edit=authc,roles[superadmin]
+				/user/update=authc,roles[superadmin]
+				/user/delete=authc,roles[superadmin]
+				/feedback/conlist=authc,roles[superadmin]
+				/feedback/feedbacklist=authc,roles[superadmin]
+				/feedback/update.action=authc,roles[superadmin]
+				<!-- /user/student*/**=roles[teacher] /user/teacher*/**=perms["user:create"] -->
+			</value>
+		</property>
+	</bean>
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+	<bean
+		class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+		depends-on="lifecycleBeanPostProcessor" />
+	<bean
+		class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+
+</beans>
